@@ -1,9 +1,7 @@
 from math import pi, sin, cos
-import matplotlib.pyplot as plt
 from panda3d.core import *
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
-from direct.gui.DirectGui import *
 import numpy as np
 
 motion_shader = [
@@ -145,6 +143,6 @@ class MyApp(ShowBase):
     #     #self.cardnode1.setShaderInput("time", task.time)
     #
     #     return task.cont
-
-app = MyApp()
-app.run()
+if __name__ == "__main__":
+    app = MyApp()
+    app.run()
