@@ -12,14 +12,14 @@ loadPrcFileData("",
                 undecorated #t
                 cursor-hidden #f
                 win-size %d %d
-                """ % (1920, 1200))
+                """ % (1024, 1024))
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.accept('mouse1', self.mouseClick)  #event handler for left mouse click
         self.disableMouse()
         # sine wave equation: y(t) = A * sin(kx +/- wt + phi) = A * sin(2*pi*x/lambda + 2*pi*f*t + phi)
-        self.winsize = 512             #size of the window
+        self.winsize = 1024             #size of the window
         self.lamda = 32                 #wavelength
         self.freq = 0.5
         self.theta = np.deg2rad(0)     #rotation angle in radians
@@ -31,9 +31,12 @@ class MyApp(ShowBase):
         t = 0
         self.x0 = np.linspace(-1, 1, num=self.winsize)
         self.XX, self.YY = np.meshgrid(self.x0, self.x0)
-        self.gauss = np.exp( - ((self.XX**2) + (self.YY**2)) / (2 * self.sigma**2))
+        self.XX_theta = self.XX * np.cos(self.theta)  # proportion of XX for given rotation
+        self.YY_theta = self.YY * np.sin(self.theta)  # proportion of YY for given rotation
+        self.XY_theta = self.XX + self.YY  # sum the components
+        self.gauss = np.exp(- ((self.XX ** 2) + (self.YY ** 2)) / (2 * self.sigma ** 2))
         self.gauss = self.gauss * (self.gauss > 0.005)
-        self.grating = np.sin((2 * pi * self.XX * self.winsize) / self.lamda - 2 * np.pi * self.freq * t)
+        self.grating = np.sin((2 * pi * self.XY_theta * self.winsize) / self.lamda - 2 * np.pi * self.freq * t)
         self.img0[:, :, 0] = (self.grating * self.gauss * 127) + 127
         self.img0[:, :, 1] = (self.grating * self.gauss * 127) + 127
         self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
@@ -57,6 +60,7 @@ class MyApp(ShowBase):
         ts0.setSort(0)
 
         self.cardnode.setTexture(ts0, self.tex0)
+        self.setBackgroundColor(0.5, 0.5, 0.5, 1)
 
         self.taskMgr.add(self.MouseWatcher, "MouseWatcher")
     # change the centre of the Gabor by tracking mouse position
@@ -64,13 +68,15 @@ class MyApp(ShowBase):
         if self.mouseWatcherNode.hasMouse():
             self.x = self.mouseWatcherNode.getMouseX()
             self.y = self.mouseWatcherNode.getMouseY()
-            self.gauss = np.exp(-((self.XX-self.x)**2 + (self.YY-self.y)**2) / (2 * self.sigma**2))
-            self.gauss = self.gauss * (self.gauss > 0.005)
-            self.img0[:, :, 0] = (self.grating * self.gauss * 127) + 127
-            self.img0[:, :, 1] = (self.grating * self.gauss * 127) + 127
-            self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
-            self.img0 = self.img0.astype(np.uint8)
-            memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
+            self.cardnode.setPos(-0.5+self.x*0.5, 0.5, -0.5+self.y*0.5)
+
+            # self.gauss = np.exp(-((self.XX-self.x)**2 + (self.YY-self.y)**2) / (2 * self.sigma**2))
+            # self.gauss = self.gauss * (self.gauss > 0.005)
+            # self.img0[:, :, 0] = (self.grating * self.gauss * 127) + 127
+            # self.img0[:, :, 1] = (self.grating * self.gauss * 127) + 127
+            # self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
+            # self.img0 = self.img0.astype(np.uint8)
+            # memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
         return task.cont
     #print mouse position in the window upon left mouse click
     def mouseClick(self):

@@ -5,7 +5,10 @@ if __name__ == "__main__":
     shared = Shared()
     shared.start_threads()
     for i in range(100):
-        print("Beautiful girl #{:05d} - {}".format(i, shared.frameCount.value))
+        print("Beautiful girl, i slept with #{:05d} - {}".format(i, shared.frameCount.value))
+
+        if i > 80:
+            shared.theta.value = 30
         time.sleep(0.1)
 
 
