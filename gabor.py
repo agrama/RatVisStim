@@ -6,12 +6,13 @@ import numpy as np
 
 loadPrcFileData("",
                 """sync-video #t
-                fullscreen #f
-                win-origin 500 500
+                fullscreen #t
+                win-origin 0 0
                 undecorated #t
                 cursor-hidden #f
+                show-frame-rate-meter #t
                 win-size %d %d
-                """ % (512, 512))
+                """ % (1920, 1200))
 class MyApp(ShowBase):
     def __init__(self, shared):
 
@@ -19,29 +20,33 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)
         self.disableMouse()
         # sine wave equation: y(t) = A * sin(kx +/- wt + phi) = A * sin(2*pi*x/lambda + 2*pi*f*t + phi)
-        self.winsize = 512             #size of the window
+        self.winsize_x = 1920             #size of the window
+        self.winsize_y = 1200
         self.lamda = 32                 #wavelength
         self.freq = 0.5
         self.sigma = 0.1                 #gaussian standard deviation
 
         # self.screenimage = np.zeros((1200, 1920, 4)) * 255   # this might be unnecessary , the gaussian might provide all the windowing i need
-        self.img0 = np.zeros((self.winsize, self.winsize, 3))
-
+        self.img0 = np.zeros((self.winsize_y, self.winsize_x))
+        self.img1 = np.ones((self.winsize_y, self.winsize_x),dtype=np.uint8)*127
         t = 0
-        self.x0 = np.linspace(-1, 1, num=self.winsize)
-        self.XX, self.YY = np.meshgrid(self.x0, self.x0)
+        self.x0 = np.linspace(-1, 1, num=self.winsize_y)
+        self.y0 = np.linspace(-1, 1, num=self.winsize_x)
+        self.XX, self.YY = np.meshgrid(self.x0, self.y0)
         self.x = 0
         self.y = 0
 
+
         self.tex0 = Texture("texture")
         self.tex0.setMagfilter(Texture.FTLinear)
-        self.tex0.setup2dTexture(self.img0.shape[1], self.img0.shape[0], Texture.TUnsignedByte, Texture.FRgb)
+        self.tex0.setup2dTexture(self.img0.shape[1], self.img0.shape[0], Texture.TUnsignedByte, Texture.FLuminance)
         #memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
-        self.update_stimulus()
+        self.drawgrey()
 
         cm = CardMaker('card')
         self.cardnode = self.render.attachNewNode(cm.generate())
         self.cardnode.setPos(-0.5, 0.5, -0.5)
+        self.setBackgroundColor(0.5, 0.5, 0.5, 1)
 
         self.lens1 = PerspectiveLens()
         self.lens1.setNearFar(0.01, 100)
@@ -66,8 +71,13 @@ class MyApp(ShowBase):
         self.grating = np.sin((2 * pi * self.XY_theta * self.winsize) / self.lamda - 2 * np.pi * self.freq * 0)
         self.gauss = np.exp(-((self.XX - self.x) ** 2 + (self.YY - self.y) ** 2) / (2 * self.sigma ** 2))
         self.gauss = self.gauss * (self.gauss > 0.005)
-        self.img0[:, :, 0] = (self.grating * self.gauss * 127) + 127
-        self.img0[:, :, 1] = (self.grating * self.gauss * 127) + 127
-        self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
+        self.img0[:, :] = (self.grating * self.gauss * 127) + 127
+        # self.img0[:, :, 1] = (self.grating * self.gauss * 127) + 127
+        # self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
         self.img0 = self.img0.astype(np.uint8)
         memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
+    def drawgrey(self):
+        # self.camera.setHpr(180,0,0)
+        memoryview(self.tex0.modify_ram_image())[:] = self.img1.tobytes()
+
+
