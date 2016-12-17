@@ -9,8 +9,7 @@ loadPrcFileData("",
                 fullscreen #t
                 win-origin 0 0
                 undecorated #t
-                cursor-hidden #f
-                show-frame-rate-meter #t
+                cursor-hidden #t
                 win-size %d %d
                 """ % (1920, 1080))
 class MyApp(ShowBase):
