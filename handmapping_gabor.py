@@ -38,7 +38,7 @@ class MyApp(ShowBase):
         self.XX, self.YY = np.meshgrid(self.x0, self.y0)
         self.XX_theta = self.XX * np.cos(self.theta)  # proportion of XX for given rotation
         self.YY_theta = self.YY * np.sin(self.theta)  # proportion of YY for given rotation
-        self.XY_theta = self.XX + self.YY  # sum the components
+        self.XY_theta = self.XX_theta + self.YY_theta  # sum the components
         self.gauss = np.exp(- ((self.XX ** 2) + (self.YY ** 2)) / (2 * self.sigma ** 2))
         self.gauss = self.gauss * (self.gauss > 0.005)
         self.grating = np.sin(2 * pi * self.XY_theta * 10 - 2 * np.pi * self.freq * t)

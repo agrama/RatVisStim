@@ -12,7 +12,7 @@ loadPrcFileData("",
                 cursor-hidden #f
                 show-frame-rate-meter #t
                 win-size %d %d
-                """ % (1920, 1200))
+                """ % (1920, 1080))
 class MyApp(ShowBase):
     def __init__(self, shared):
 
@@ -21,17 +21,18 @@ class MyApp(ShowBase):
         self.disableMouse()
         # sine wave equation: y(t) = A * sin(kx +/- wt + phi) = A * sin(2*pi*x/lambda + 2*pi*f*t + phi)
         self.winsize_x = 1920             #size of the window
-        self.winsize_y = 1200
-        self.lamda = 32                 #wavelength
+        self.winsize_y = 1080
+        # self.lamda = 32                 #wavelength
         self.freq = 0.5
         self.sigma = 0.1                 #gaussian standard deviation
 
         # self.screenimage = np.zeros((1200, 1920, 4)) * 255   # this might be unnecessary , the gaussian might provide all the windowing i need
         self.img0 = np.zeros((self.winsize_y, self.winsize_x))
         self.img1 = np.ones((self.winsize_y, self.winsize_x),dtype=np.uint8)*127
-        t = 0
-        self.x0 = np.linspace(-1, 1, num=self.winsize_y)
-        self.y0 = np.linspace(-1, 1, num=self.winsize_x)
+
+        self.x0 = np.linspace(-float(self.winsize_x) / self.winsize_y, float(self.winsize_x) / self.winsize_y,
+                              num=self.winsize_x)
+        self.y0 = np.linspace(-1, 1, num=self.winsize_y)
         self.XX, self.YY = np.meshgrid(self.x0, self.y0)
         self.x = 0
         self.y = 0
@@ -61,14 +62,10 @@ class MyApp(ShowBase):
 
 
     def update_stimulus(self):
-        if self.mouseWatcherNode.hasMouse():
-            self.x = self.mouseWatcherNode.getMouseX()
-            self.y = self.mouseWatcherNode.getMouseY()
-
         self.XX_theta = self.XX * np.cos(np.deg2rad(self.shared.theta.value))  # proportion of XX for given rotation
         self.YY_theta = self.YY * np.sin(np.deg2rad(self.shared.theta.value))  # proportion of YY for given rotation
         self.XY_theta = self.XX_theta + self.YY_theta  # sum the components
-        self.grating = np.sin((2 * pi * self.XY_theta * self.winsize) / self.lamda - 2 * np.pi * self.freq * 0)
+        self.grating = np.sin(2 * pi * self.XY_theta * 10 - 2 * np.pi * self.freq * 0)
         self.gauss = np.exp(-((self.XX - self.x) ** 2 + (self.YY - self.y) ** 2) / (2 * self.sigma ** 2))
         self.gauss = self.gauss * (self.gauss > 0.005)
         self.img0[:, :] = (self.grating * self.gauss * 127) + 127
