@@ -25,7 +25,7 @@ class StimulusModule(Process):
             self.new_time = time.time()
             self.dt = self.new_time - self.last_time
             self.last_time = self.new_time
-            if not (self.shared.frameCount.value+1) % 10:    # present every 10th frame
+            if not (self.shared.frameCount.value+1) % 15:    # present every 10th frame
                 self.shared.theta.value = self.thetas[self.numstim - self.stimcount]
                 self.stim_start_time = time.time()
                 self.myapp.update_stimulus()
