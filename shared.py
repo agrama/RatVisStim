@@ -1,6 +1,6 @@
 from multiprocessing import Value, Array, Queue, sharedctypes
 from FrameCounter import FrameCounter
-from stimulus_module import StimulusModule
+from stimulus_module_orient_position_gratings import StimulusModule
 import ctypes
 
 class Shared():
@@ -10,6 +10,9 @@ class Shared():
         self.frameCount = Value("L", 0)
         # self.shared.stimulus_start_time = Value("d",0)
         self.theta = Value("i", 0)
+        self.x = Value("d", 0)
+        self.y = Value("d", 0)
+
     def start_threads(self):
         submodule = FrameCounter(self)
         submodule.start()

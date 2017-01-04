@@ -30,7 +30,7 @@ class StimulusModule(Process):
                 self.stim_start_time = time.time()
                 self.myapp.update_stimulus()
                 self.last_time = time.time()
-                while self.last_time- self.stim_start_time < 2:   #present gabor for 2 sec
+                while self.last_time- self.stim_start_time < 1:   #present gabor for 2 sec
                     self.myapp.taskMgr.step()
                     self.last_time = time.time()
                 self.myapp.drawgrey()

@@ -12,7 +12,7 @@ loadPrcFileData("",
                 undecorated #t
                 cursor-hidden #f
                 win-size %d %d
-                """ % (1920, 1200))
+                """ % (1920, 1080))
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
@@ -21,11 +21,11 @@ class MyApp(ShowBase):
         self.disableMouse()
         # sine wave equation: y(t) = A * sin(kx +/- wt + phi) = A * sin(2*pi*x/lambda + 2*pi*f*t + phi)
         self.winsize_x = 1920  # size of the window
-        self.winsize_y = 1200
+        self.winsize_y = 1080
         self.lamda = 32                 #wavelength
         self.freq = 0.5
         self.theta = np.deg2rad(0)     #rotation angle in radians
-        self.sigma = 0.1                 #gaussian standard deviation
+        self.sigma = 0.2                #gaussian standard deviation
 
         # self.screenimage = np.zeros((1200, 1920, 4)) * 255   # this might be unnecessary , the gaussian might provide all the windowing i need
         self.img0 = np.zeros((self.winsize_y, self.winsize_x))

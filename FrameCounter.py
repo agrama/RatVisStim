@@ -20,7 +20,7 @@ class FrameCounter(Process):
                 PyDAQ.DAQmxReadCounterScalarU32(taskHandle, 10.0, PyDAQ.byref(frameCount), None)
                 # print(frameCount.value)
                 self.shared.frameCount.value = frameCount.value
-                time.sleep(0.005) # this prevents this loop from over exerting the processor
+                time.sleep(0.00005) # this prevents this loop from over exerting the processor
 
         except PyDAQ.DAQError as err:
                 print("DAQmx Error: %s" % err)

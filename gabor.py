@@ -5,12 +5,13 @@ from direct.task import Task
 import numpy as np
 
 loadPrcFileData("",
-                """sync-video #t
+                """sync-video #f
                 fullscreen #t
                 win-origin 0 0
                 undecorated #t
                 cursor-hidden #t
                 win-size %d %d
+                show-frame-rate-meter #f
                 """ % (1920, 1080))
 class MyApp(ShowBase):
     def __init__(self, shared):
@@ -23,7 +24,7 @@ class MyApp(ShowBase):
         self.winsize_y = 1080
         # self.lamda = 32                 #wavelength
         self.freq = 0.5
-        self.sigma = 0.1                 #gaussian standard deviation
+        self.sigma = 0.3                 #gaussian standard deviation
 
         # self.screenimage = np.zeros((1200, 1920, 4)) * 255   # this might be unnecessary , the gaussian might provide all the windowing i need
         self.img0 = np.zeros((self.winsize_y, self.winsize_x))
@@ -72,6 +73,8 @@ class MyApp(ShowBase):
         # self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
         self.img0 = self.img0.astype(np.uint8)
         memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
+        self.cardnode.setPos(-0.5 + self.shared.x.value * 0.5, 0.5, -0.5 + self.shared.y.value * 0.5)
+
     def drawgrey(self):
         # self.camera.setHpr(180,0,0)
         memoryview(self.tex0.modify_ram_image())[:] = self.img1.tobytes()
