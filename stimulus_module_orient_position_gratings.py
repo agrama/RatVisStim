@@ -21,13 +21,13 @@ class StimulusModule(Process):
         self.stimcode = []
         for x in np.arange(-0.66, 0.7, 0.33):
             for y in [-0.5, 0.5]:
-                for theta in np.arange(0, 180, 90):
+                for theta in np.arange(0, 180, 45):
                     self.stimcode.append((x, y, theta))     #this generates different permutations of x and y and theta values
         rn.seed(1)
         rn.shuffle(self.stimcode)
         stimcode1 = self.stimcode[:]
         numtrials = 3
-        self.frametrig = 15 * (30 + 8) #present stim every 15th frame or volume
+        self.frametrig = 40 * (35 + 8) #present stim every 15th frame or volume
         for trial in range(numtrials-1):
             self.stimcode.extend(stimcode1) #repeat the randomized stim block
 

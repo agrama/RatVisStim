@@ -1,8 +1,8 @@
 from multiprocessing import Value, Array, Queue, sharedctypes
 from FrameCounter import FrameCounter
-from stimulus_module_orient_position_gratings import StimulusModule
+# from stimulus_module_orient_position_gratings import StimulusModule
 import ctypes
-
+from stimulus_module_shader import StimulusModule
 class Shared():
     def __init__(self):
 

@@ -27,49 +27,40 @@ my_shader = [
                 in vec2 texcoord;
                 out vec4 gl_FragColor;
                 uniform float rot_angle;
-                uniform float x_shift;
                 uniform float x_scale;
-                //uniform float gabor_radius;
+                uniform float y_scale;
+                uniform float timer;
 
                 void main() {
-                mat2 rotation = mat2( cos(rot_angle), sin(rot_angle),
+                 mat2 rotation = mat2( cos(rot_angle), sin(rot_angle),
                       -sin(rot_angle), cos(rot_angle));
-
-                  vec2 texcoord_rotated = rotation*texcoord.xy;
-                  vec2 texcoord_translated = vec2(texcoord_rotated.x - x_shift, texcoord_rotated.y);
-                  vec2 texcoord_scaled = vec2(texcoord_translated.x * x_scale, texcoord_translated.y);
-
-                  vec4 color0 = texture(p3d_Texture0, texcoord_scaled);
-
-                  //float r;
-                  //r = sqrt((texcoord.x-0.5)*(texcoord.x-0.5) + (texcoord.y-0.5)*(texcoord.y-0.5));
-
-                  //color0 = color0 * exp(-(r*r)/(gabor_radius*gabor_radius));
-
-
-                  gl_FragColor = color0;
+                 vec2 texcoord_scaled = vec2(texcoord.x * x_scale, texcoord.y * y_scale);
+                 vec2 texcoord_rotated = rotation*texcoord_scaled.xy;
+                 vec4 color0 = texture(p3d_Texture0, texcoord_rotated);
+                 color0 = (color0-0.5) * sin(2 * 3.14 * timer *0.3 ) + 0.5;
+                 gl_FragColor = color0;
                }
             """
             ]
 
 loadPrcFileData("",
-                """sync-video #t
+                """sync-video #f
                 fullscreen #t
                 win-origin 0 0
                 undecorated #t
                 cursor-hidden #t
                 win-size %d %d
-                show-frame-rate-meter #t
-                """ % (1920, 1200))
+                show-frame-rate-meter #f
+                """ % (1920, 1080))
 
 class MyApp(ShowBase):
-    def __init__(self, shared):
-        self.shared = shared
+    def __init__(self):
+
         ShowBase.__init__(self)
         self.disableMouse()
         self.accept('escape', sys.exit)
         x = np.linspace(0, 2*np.pi, 100)
-        y = (np.sin(x) + 1)/2 * 255
+        y = (np.sign(np.sin(x)) + 1)/2 * 255
 
         self.tex = Texture("texture")
         self.tex.setMagfilter(Texture.FTLinear)
@@ -91,14 +82,16 @@ class MyApp(ShowBase):
 
         self.cardnode.setTexture(self.tex)
 
-        self.taskMgr.add(self.TextureChanger, "TextureChanger")
-
         self.my_shader = Shader.make(Shader.SLGLSL, my_shader[0], my_shader[1])
 
         self.cardnode.setShader(self.my_shader)
-        self.cardnode.setShaderInput("x_scale", scale)
         self.scale = 10
-        self.cardnode.hide()
+        self.cardnode.setShaderInput("x_scale", self.scale * self.getAspectRatio())
+        self.cardnode.setShaderInput("y_scale", self.scale)
+        # self.cardnode.setShaderInput("rot_angle", 0)
+        # self.cardnode.setShaderInput("x_shift", 0)
+
         self.setBackgroundColor(0.5, 0.5, 0.5)
+        self.cardnode.hide()
 
 
