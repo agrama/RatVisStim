@@ -85,7 +85,7 @@ class MyApp(ShowBase):
         self.my_shader = Shader.make(Shader.SLGLSL, my_shader[0], my_shader[1])
 
         self.cardnode.setShader(self.my_shader)
-        self.scale = 10
+        self.scale = 12
         self.cardnode.setShaderInput("x_scale", self.scale * self.getAspectRatio())
         self.cardnode.setShaderInput("y_scale", self.scale)
         # self.cardnode.setShaderInput("rot_angle", 0)

@@ -102,7 +102,7 @@ class MyApp(ShowBase):
    def TextureChanger(self, task):
 
        rot = task.time//3
-       scale = 10
+       scale = 12
 
        gabor_radius = 1
 

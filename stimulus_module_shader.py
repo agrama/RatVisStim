@@ -20,8 +20,8 @@ class StimulusModule(Process):
         self.thetas = np.random.permutation(self.thetas)
         self.numstim = len(self.thetas)
         self.stimcount = len(self.thetas)
-        self.frametrig = 50*(20+1)
-        self.waitframes = 50*(20+1) # wait # frames before starting stim
+        self.frametrig = 500
+        self.waitframes = 500 # wait # frames before starting stim
         while self.shared.main_programm_still_running.value == 1:
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()

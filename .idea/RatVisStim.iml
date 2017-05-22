@@ -5,6 +5,7 @@
     <orderEntry type="jdk" jdkName="Python 2.7.12 (C:\Anaconda2\python.exe)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="PycharmProjects" />
+    <orderEntry type="module" module-name="untitled" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Nosetests" />
