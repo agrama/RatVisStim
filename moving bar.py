@@ -53,7 +53,7 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)
         self.accept('escape', sys.exit)
         x = np.zeros((1920, 1920), dtype=np.uint8)
-        x[0:40, :] = 255
+        x[-40:-1, :] = 255
         # y = (np.sign(np.sin(x)) + 1)/2 * 255
 
         self.tex = Texture("texture")
@@ -91,7 +91,7 @@ class MyApp(ShowBase):
             self.cardnode.show()
         else:
             self.cardnode.show()
-            self.cardnode.setShaderInput("y_shift", (task.time-2) * 0.1)
+            self.cardnode.setShaderInput("y_shift", 0*(task.time-2) * 0.1)
             self.cardnode.setShaderInput("x_shift", 0)# -(task.time-2)*0.1)
         return task.cont
 

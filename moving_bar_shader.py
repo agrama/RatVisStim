@@ -40,7 +40,7 @@ my_shader = [
 
 loadPrcFileData("",
                 """sync-video #f
-                fullscreen #t
+                fullscreen #f
                 win-origin 0 0
                 undecorated #t
                 cursor-hidden #t
@@ -56,12 +56,12 @@ class MyApp(ShowBase):
         self.accept('escape', sys.exit)
         self.x = np.zeros((1920, 1920), dtype=np.uint8)
         self.barwidth = 40
-        self.x[0:barwidth] = 255
+
         self.tex = Texture("texture")
         self.tex.setMagfilter(Texture.FTLinear)
 
-        self.tex.setup2dTexture(1920, 1, Texture.TUnsignedByte, Texture.FLuminance)
-        memoryview(self.tex.modify_ram_image())[:] = x.astype(np.uint8).tobytes()
+        self.tex.setup2dTexture(1920, 1920, Texture.TUnsignedByte, Texture.FLuminance)
+        # memoryview(self.tex.modify_ram_image())[:] = x.astype(np.uint8).tobytes()
 
 
         cm = CardMaker('card')

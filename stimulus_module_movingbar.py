@@ -22,7 +22,8 @@ class StimulusModule(Process):
         self.stimcount = len(self.thetas)
         self.frametrig = 500
         self.waitframes = 500 # wait # frames before starting stim
-        self.stimcode = 'right'
+        self.stimcode = 'left'
+        self.stimtime = 10
         while self.shared.main_programm_still_running.value == 1:
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()
@@ -30,45 +31,49 @@ class StimulusModule(Process):
             else:
                 if self.stimcode == 'right':
                     self.myapp.x[:,0:self.myapp.barwidth] = 255
+                    memoryview(self.myapp.tex.modify_ram_image())[:] = self.myapp.x.astype(np.uint8).tobytes()
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
                     self.myapp.cardnode.show()
-                    while self.last_time - self.stim_start_time < 200: # present for 200 sec
-                        self.cardnode.setShaderInput("y_shift", 0)
-                        self.cardnode.setShaderInput("x_shift", (self.last_time - self.stim_start_time) * 0.1) # shift bar at 0.1 Hz
+                    while self.last_time - self.stim_start_time < self.stimtime: # present for 200 sec
+                        self.myapp.cardnode.setShaderInput("y_shift", 0)
+                        self.myapp.cardnode.setShaderInput("x_shift", (self.last_time - self.stim_start_time) * 0.1) # shift bar at 0.1 Hz
                         self.myapp.taskMgr.step()
                         self.last_time = time.time()
                     self.shared.main_programm_still_running.value = 0
-                elif self.stimcode = 'left':
-                    self.myapp.x[:,-self.myapp.barwidth:-1] == 255
+                elif self.stimcode == 'left':
+                    self.myapp.x[:,-self.myapp.barwidth:-1] = 255
+                    memoryview(self.myapp.tex.modify_ram_image())[:] = self.myapp.x.astype(np.uint8).tobytes()
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
                     self.myapp.cardnode.show()
-                    while self.last_time - self.stim_start_time < 200:  # present for 200 sec
-                        self.cardnode.setShaderInput("y_shift", 0)
-                        self.cardnode.setShaderInput("x_shift", -(self.last_time - self.stim_start_time) * 0.1)  # shift bar at 0.1 Hz
+                    while self.last_time - self.stim_start_time < self.stimtime:  # present for 200 sec
+                        self.myapp.cardnode.setShaderInput("y_shift", 0)
+                        self.myapp.cardnode.setShaderInput("x_shift", -(self.last_time - self.stim_start_time) * 0.1)  # shift bar at 0.1 Hz
                         self.myapp.taskMgr.step()
                         self.last_time = time.time()
                     self.shared.main_programm_still_running.value = 0
                 elif self.stimcode == 'up':
                     self.myapp.x[0:self.myapp.barwidth, :] = 255
+                    memoryview(self.myapp.tex.modify_ram_image())[:] = self.myapp.x.astype(np.uint8).tobytes()
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
                     self.myapp.cardnode.show()
-                    while self.last_time - self.stim_start_time < 200:  # present for 200 sec
-                        self.cardnode.setShaderInput("y_shift", (self.last_time - self.stim_start_time) * 0.1)  # shift bar at 0.1 Hz
-                        self.cardnode.setShaderInput("x_shift", 0)
+                    while self.last_time - self.stim_start_time < self.stimtime:  # present for 200 sec
+                        self.myapp.cardnode.setShaderInput("y_shift", (self.last_time - self.stim_start_time) * 0.1)  # shift bar at 0.1 Hz
+                        self.myapp.cardnode.setShaderInput("x_shift", 0)
                         self.myapp.taskMgr.step()
                         self.last_time = time.time()
                     self.shared.main_programm_still_running.value = 0
                 elif self.stimcode == 'down':
                     self.myapp.x[-self.myapp.barwidth:-1, :] = 255
+                    memoryview(self.myapp.tex.modify_ram_image())[:] = self.myapp.x.astype(np.uint8).tobytes()
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
                     self.myapp.cardnode.show()
-                    while self.last_time - self.stim_start_time < 200:  # present for 200 sec
-                        self.cardnode.setShaderInput("y_shift", -(self.last_time - self.stim_start_time) * 0.1) # shift bar at 0.1 Hz
-                        self.cardnode.setShaderInput("x_shift", 0)
+                    while self.last_time - self.stim_start_time < self.stimtime:  # present for 200 sec
+                        self.myapp.cardnode.setShaderInput("y_shift", -(self.last_time - self.stim_start_time) * 0.1) # shift bar at 0.1 Hz
+                        self.myapp.cardnode.setShaderInput("x_shift", 0)
                         self.myapp.taskMgr.step()
                         self.last_time = time.time()
                     self.shared.main_programm_still_running.value = 0
