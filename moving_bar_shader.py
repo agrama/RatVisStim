@@ -26,40 +26,41 @@ my_shader = [
                 uniform sampler2D p3d_Texture0;
                 in vec2 texcoord;
                 out vec4 gl_FragColor;
-                uniform float y_shift;
                 uniform float x_shift;
+                uniform float y_shift;
 
                 void main() {
 
-                  vec2 texcoord_translated = vec2(texcoord.x-x_shift , texcoord.y-y_shift);
-                  vec4 color0 = texture(p3d_Texture0, texcoord_translated);
-                  gl_FragColor = color0;
+                 vec2 texcoord_translated = vec2(texcoord.x-x_shift , texcoord.y-y_shift);
+                 vec4 color0 = texture(p3d_Texture0, texcoord_translated);
+                 gl_FragColor = color0;
                }
             """
             ]
 
 loadPrcFileData("",
                 """sync-video #f
-                fullscreen #f
+                fullscreen #t
                 win-origin 0 0
                 undecorated #t
                 cursor-hidden #t
                 win-size %d %d
-                show-frame-rate-meter #t
+                show-frame-rate-meter #f
                 """ % (1920, 1920))
 
 class MyApp(ShowBase):
     def __init__(self):
-        ShowBase.__init__(self)
-        self.accept('escape', sys.exit)
-        x = np.zeros((1920, 1920), dtype=np.uint8)
-        x[0:40, :] = 255
-        # y = (np.sign(np.sin(x)) + 1)/2 * 255
 
+        ShowBase.__init__(self)
+        self.disableMouse()
+        self.accept('escape', sys.exit)
+        self.x = np.zeros((1920, 1920), dtype=np.uint8)
+        self.barwidth = 40
+        self.x[0:barwidth] = 255
         self.tex = Texture("texture")
         self.tex.setMagfilter(Texture.FTLinear)
 
-        self.tex.setup2dTexture(1920, 1920, Texture.TUnsignedByte,Texture.FLuminance)
+        self.tex.setup2dTexture(1920, 1, Texture.TUnsignedByte, Texture.FLuminance)
         memoryview(self.tex.modify_ram_image())[:] = x.astype(np.uint8).tobytes()
 
 
@@ -76,24 +77,10 @@ class MyApp(ShowBase):
 
         self.cardnode.setTexture(self.tex)
 
-        self.taskMgr.add(self.TextureChanger, "TextureChanger")
-
         self.my_shader = Shader.make(Shader.SLGLSL, my_shader[0], my_shader[1])
-        self.setBackgroundColor(0, 0, 0)
 
         self.cardnode.setShader(self.my_shader)
+        self.setBackgroundColor(0, 0, 0)
+        self.cardnode.hide()
 
 
-    def TextureChanger(self, task):
-        if task.time<2:
-            self.cardnode.setShaderInput("y_shift", 0)  # task.time * 0.3)
-            self.cardnode.setShaderInput("x_shift", 0)#-task.time * 0.3)
-            self.cardnode.show()
-        else:
-            self.cardnode.show()
-            self.cardnode.setShaderInput("y_shift", (task.time-2) * 0.1)
-            self.cardnode.setShaderInput("x_shift", 0)# -(task.time-2)*0.1)
-        return task.cont
-
-app = MyApp()
-app.run()
