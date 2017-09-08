@@ -4,7 +4,7 @@ from direct.showbase.ShowBase import ShowBase
 from direct.showbase import DirectObject
 from direct.task import Task
 import numpy as np
-
+import sys
 loadPrcFileData("",
                 """sync-video #t
                 fullscreen #t
@@ -16,6 +16,7 @@ loadPrcFileData("",
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
+        self.accept('escape', sys.exit)
         self.accept('mouse1', self.mouseLeftClick)  #event handler for left mouse click
         self.accept('mouse3', self.mouseRightClick) #event handler for right mouse click
         self.disableMouse()

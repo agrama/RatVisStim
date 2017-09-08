@@ -26,7 +26,7 @@ class StimulusModule(Process):
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()
             else:
-                if not (self.shared.frameCount.value+1-self.waitframes) % self.frametrig:    # present every 10th frame
+                if not (self.shared.frameCount.value+1-self.waitframes) % self.frametrig:    # present every frametrig frame
                     self.myapp.cardnode.setShaderInput("rot_angle", self.thetas[self.numstim - self.stimcount])
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
@@ -40,7 +40,7 @@ class StimulusModule(Process):
                     self.stim_start_time = time.time()
                     self.myapp.cardnode.hide()
                     self.last_time = time.time()
-                    while self.last_time- self.stim_start_time < 10:   #present gray background for 5 s before shutting down program
+                    while self.last_time- self.stim_start_time < 10:   #present gray background for 10 s before shutting down program
                         self.myapp.taskMgr.step()
                         self.last_time = time.time()
                     self.shared.main_programm_still_running.value = 0
