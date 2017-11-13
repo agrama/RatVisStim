@@ -17,7 +17,7 @@ class StimulusModule(Process):
         self.myapp = MyApp(self.shared)
         # self.myapp.drawgrey()
         # self.myapp.taskMgr.step()
-        counter = 0;
+
         self.stimcode = []
         for x in np.arange(0, 1.02, 0.2):
             for y in np.arange(0, 1, 0.33):
@@ -26,13 +26,13 @@ class StimulusModule(Process):
         rn.seed(1)
         rn.shuffle(self.stimcode)
         stimcode1 = self.stimcode[:]
-        numtrials = 3
+        numtrials = 5
         for trial in range(numtrials-1):
             self.stimcode.extend(stimcode1)   #repeat the randomized stim block
         self.numstim = len(self.stimcode)
         self.stimcount = len(self.stimcode)
-        self.waitframes = 30 * (20 + 1)  # wait frames before starting stim
-        self.frametrig = 30 * (20 + 1)  # trigger visual stim at these frame intervals after waitframes
+        self.waitframes = 300  # wait frames before starting stim
+        self.frametrig = 60  # trigger visual stim at these frame intervals after waitframes
         while self.shared.main_programm_still_running.value == 1:
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()

@@ -55,7 +55,7 @@ loadPrcFileData("",
                 cursor-hidden #t
                 win-size %d %d
                 show-frame-rate-meter #t
-                """ % (1920, 1080))
+                """ % (3000, 2000))
 
 
 class MyApp(ShowBase):
@@ -130,7 +130,7 @@ class MyApp(ShowBase):
                 return task.cont
             return task.cont
         else:
-            self.cardnode.hide()
+            # self.cardnode.hide()
             return task.cont
 
 

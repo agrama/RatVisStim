@@ -49,18 +49,20 @@ loadPrcFileData("",
                 """ % (1920, 1920))
 
 class MyApp(ShowBase):
-    def __init__(self):
+    def __init__(self, shared):
 
         ShowBase.__init__(self)
+        self.shared = shared
         self.disableMouse()
-        self.accept('escape', sys.exit)
-        self.x = np.zeros((1920, 1920), dtype=np.uint8)
-        self.barwidth = 40
+        self.accept('escape', self.escapeAction)
+        self.winsize = 1000
+        self.x = np.zeros((self.winsize, self.winsize), dtype=np.uint8)
+        self.barwidth = 20
 
         self.tex = Texture("texture")
         self.tex.setMagfilter(Texture.FTLinear)
 
-        self.tex.setup2dTexture(1920, 1920, Texture.TUnsignedByte, Texture.FLuminance)
+        self.tex.setup2dTexture(self.winsize, self.winsize, Texture.TUnsignedByte, Texture.FLuminance)
         # memoryview(self.tex.modify_ram_image())[:] = x.astype(np.uint8).tobytes()
 
 
@@ -82,5 +84,8 @@ class MyApp(ShowBase):
         self.cardnode.setShader(self.my_shader)
         self.setBackgroundColor(0, 0, 0)
         self.cardnode.hide()
+
+    def escapeAction(self):
+        self.shared.main_programm_still_running.value = 0
 
 

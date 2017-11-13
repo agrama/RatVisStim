@@ -1,5 +1,5 @@
 from multiprocessing import Process, Value, Array, Queue, sharedctypes
-from gabor_mapping_shader import MyApp
+from cesar_natural_scenes import MyApp
 import time
 import numpy as np
 import random as rn
@@ -18,24 +18,26 @@ class StimulusModule(Process):
         # self.myapp.drawgrey()
         # self.myapp.taskMgr.step()
         counter = 0;
-        self.stimcode = np.arange(1,31) #number of stim files
-        numtrials = 3
+        self.stimcode = np.arange(1,61) #number of stim files
+        numtrials = 2
         self.stimcode = np.tile(self.stimcode, numtrials) # repeat stim
+        rn.seed(1)
+        rn.shuffle(self.stimcode)
         # should i randomise the presentation?
         self.numstim = len(self.stimcode)
         self.stimcount = len(self.stimcode)
-        self.waitframes = 30 * (20 + 1)  # wait frames before starting stim
-        self.frametrig = 30 * (20 + 1)  # trigger visual stim at these frame intervals after waitframes
+        self.waitframes = 50 * (41 + 10)  # wait frames before starting stim
+        self.frametrig = 15 * (41 + 10)  # trigger visual stim at these frame intervals after waitframes
         while self.shared.main_programm_still_running.value == 1:
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()
             else:
-                if not (self.shared.frameCount.value+1 - self.waitframes) % self.frametrig:    # present every frametrig frame
+                if (self.shared.frameCount.value+1-self.waitframes) % self.frametrig < 5:    # present every frametrig frame + 5 frames
                     # need to pass values of position and rotation angle to the shader
                     self.myapp.cardnode.setTexture(self.myapp.tex[self.stimcode[self.numstim-self.stimcount]])
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
-                    while self.last_time- self.stim_start_time < 0.5:   #present gabor for 500 msec
+                    while self.last_time- self.stim_start_time < 0.5:   #present natural scene for 500 msec
                         self.myapp.cardnode.show()
                         self.myapp.taskMgr.step()
                         self.last_time = time.time()

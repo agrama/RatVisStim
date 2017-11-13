@@ -50,15 +50,16 @@ loadPrcFileData("",
                 undecorated #t
                 cursor-hidden #t
                 win-size %d %d
-                show-frame-rate-meter #f
+                show-frame-rate-meter #t
                 """ % (1920, 1080))
 
 class MyApp(ShowBase):
-    def __init__(self):
+    def __init__(self, shared):
 
         ShowBase.__init__(self)
+        self.shared = shared
         self.disableMouse()
-        self.accept('escape', sys.exit)
+        self.accept('escape', self.escapeAction)
         x = np.linspace(0, 2*np.pi, 100)
         y = (np.sign(np.sin(x)) + 1)/2 * 255
 
@@ -93,5 +94,7 @@ class MyApp(ShowBase):
 
         self.setBackgroundColor(0.5, 0.5, 0.5)
         self.cardnode.hide()
+    def escapeAction(self):
+        self.shared.main_programm_still_running.value = 0
 
 

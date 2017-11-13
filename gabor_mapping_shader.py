@@ -32,7 +32,8 @@ my_shader = [
                 uniform float x_scale;
                 uniform float y_scale;
                 uniform float gauss_sigma;
-                
+                uniform float aspect_ratio;
+
                 void main() {
                  mat2 rotation = mat2( cos(rot_angle), sin(rot_angle),
                       -sin(rot_angle), cos(rot_angle));
@@ -46,7 +47,7 @@ my_shader = [
             ]
 
 loadPrcFileData("",
-                """sync-video #f
+                """sync-video #t
                 fullscreen #t
                 win-origin 0 0
                 undecorated #t
@@ -56,11 +57,12 @@ loadPrcFileData("",
                 """ % (1920, 1080))
 
 class MyApp(ShowBase):
-    def __init__(self):
+    def __init__(self,shared):
 
         ShowBase.__init__(self)
+        self.shared = shared
         self.disableMouse()
-        self.accept('escape', sys.exit)
+        self.accept('escape', self.escapeAction)
         x = np.linspace(0, 2*np.pi, 100)
         y = (np.sign(np.sin(x)) + 1)/2 * 255
 
@@ -90,11 +92,13 @@ class MyApp(ShowBase):
         self.scale = 12
         self.cardnode.setShaderInput("x_scale", self.scale * self.getAspectRatio())
         self.cardnode.setShaderInput("y_scale", self.scale)
+        self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio())
         self.cardnode.setShaderInput("gauss_sigma", 0.1)
         # self.cardnode.setShaderInput("rot_angle", 0)
         # self.cardnode.setShaderInput("x_shift", 0)
 
         self.setBackgroundColor(0.5, 0.5, 0.5)
         self.cardnode.hide()
-
+    def escapeAction(self):
+        self.shared.main_programm_still_running.value = 0
 

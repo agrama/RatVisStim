@@ -13,17 +13,16 @@ class StimulusModule(Process):
 
     def run(self):
 
-        self.myapp = MyApp()
+        self.myapp = MyApp(self.shared)
         self.thetas = np.arange(0, np.pi, np.pi/4)           # number of stim
         self.thetas = np.tile(self.thetas, 5)    # 3 repetitions of stimuli
         np.random.seed(1)
         self.thetas = np.random.permutation(self.thetas)
         self.numstim = len(self.thetas)
         self.stimcount = len(self.thetas)
-        self.frametrig = 30*(20+1)
-        self.waitframes = 30*(20+1) # wait # frames before starting stim
-        self.stimcode = 'down'
-        self.stimtime = 200
+        self.waitframes = 300 # wait # frames before starting stim
+        self.stimcode = 'left'
+        self.stimtime = 100
         while self.shared.main_programm_still_running.value == 1:
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()

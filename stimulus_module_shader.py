@@ -13,24 +13,24 @@ class StimulusModule(Process):
 
     def run(self):
 
-        self.myapp = MyApp()
+        self.myapp = MyApp(self.shared)
         self.thetas = np.arange(0, np.pi, np.pi/4)           # number of stim
-        self.thetas = np.tile(self.thetas, 5)    # 3 repetitions of stimuli
-        np.random.seed(1)
+        self.thetas = np.tile(self.thetas, 5)    #  repetitions of stimuli
+        np.random.seed(9)
         self.thetas = np.random.permutation(self.thetas)
         self.numstim = len(self.thetas)
         self.stimcount = len(self.thetas)
-        self.frametrig = 30*(20+1)
-        self.waitframes = 30*(20+1) # wait # frames before starting stim
+        self.frametrig = 300
+        self.waitframes = 300 # wait # frames before starting stim
         while self.shared.main_programm_still_running.value == 1:
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()
             else:
-                if not (self.shared.frameCount.value+1-self.waitframes) % self.frametrig:    # present every frametrig frame
+                if (self.shared.frameCount.value+1-self.waitframes) % self.frametrig < 5:    # present every frametrig frame + 5 frames
                     self.myapp.cardnode.setShaderInput("rot_angle", self.thetas[self.numstim - self.stimcount])
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
-                    while self.last_time- self.stim_start_time < 5:   #present gabor for 2 sec
+                    while self.last_time- self.stim_start_time < 5:   #present gabor for 5 sec
                         self.myapp.cardnode.setShaderInput("timer", (self.last_time-self.stim_start_time))
                         self.myapp.cardnode.show()
                         self.myapp.taskMgr.step()
