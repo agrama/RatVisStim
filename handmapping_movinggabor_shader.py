@@ -6,7 +6,7 @@ from direct.task import Task
 import numpy as np
 from scipy import signal
 
-motion_shader = [
+my_shader = [
             """#version 140
 
                     uniform mat4 p3d_ModelViewProjectionMatrix;
@@ -23,97 +23,90 @@ motion_shader = [
             """#version 140
 
                 uniform sampler2D p3d_Texture0;
-                uniform float rot_angle
                 in vec2 texcoord;
                 out vec4 gl_FragColor;
-
+                uniform float rot_angle;
+                uniform float x_pos;
+                uniform float y_pos;
+                uniform float x_scale;
+                uniform float y_scale;
+                uniform float gauss_sigma;
+                uniform float aspect_ratio;
+                
                 void main() {
                  mat2 rotation = mat2( cos(rot_angle), sin(rot_angle),
                                   -sin(rot_angle), cos(rot_angle));
-                 vec4 color0;
-                 color0 = texture(p3d_Texture0, rotation*texcoord.xy);
-                  gl_FragColor = color0;
+                 vec2 texcoord_scaled = vec2(texcoord.x * x_scale, texcoord.y * y_scale);
+                 vec2 texcoord_rotated = rotation*texcoord_scaled.xy;
+                 vec4 color0 = texture(p3d_Texture0, texcoord_rotated);
+                 color0 = (color0-0.5) * exp(-1* ( pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) )/(2*pow(gauss_sigma,2)) ) + 0.5;
+                 gl_FragColor = color0;
                  }
             """
             ]
 
 loadPrcFileData("",
-                """sync-video #f
+                """sync-video #t
                 fullscreen #t
                 win-origin 0 0
                 undecorated #t
                 cursor-hidden #f
                 win-size %d %d
                 show-frame-rate-meter #t
-                """ % (1920, 1200))
+                """ % (1920, 1080))
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.accept('mouse1', self.mouseLeftClick)  #event handler for left mouse click
         self.accept('mouse3', self.mouseRightClick) #event handler for right mouse click
         self.accept('escape', self.escapeAction)
-        # self.accept('arrow_right', self.ThetaIncrease)
-        # self.accept('arrow_left', self.ThetaDecrease)
+        self.accept('arrow_right', self.ThetaIncrease)
+        self.accept('arrow_left', self.ThetaDecrease)
+        self.accept('wheel_up', self.GaborIncrease)
+        self.accept('wheel_down', self.GaborDecrease)
         self.disableMouse()
-        # sine wave equation: y(t) = A * sin(kx +/- wt + phi) = A * sin(2*pi*x/lambda + 2*pi*f*t + phi)
-        self.winsize_x = 1920  # size of the window
-        self.winsize_y = 1200
-        self.lamda = 32                 #wavelength
-        self.freq = 0.5
-        self.theta = np.deg2rad(0.0)     #rotation angle in radians
-        self.sigma = 0.3                 #gaussian standard deviation
+        x = np.linspace(0, 2 * np.pi, 100)
+        y = (np.sign(np.sin(x)) + 1) / 2 * 255
 
-        # self.screenimage = np.zeros((1200, 1920, 4)) * 255   # this might be unnecessary , the gaussian might provide all the windowing i need
-        self.img0 = np.zeros((self.winsize_y, self.winsize_x, 3))
-        self.img1 = np.ones((self.winsize_y, self.winsize_x, 3), dtype=np.uint8) * 127
-        self.drawGreyFlag = 0
+        self.tex = Texture("texture")
+        self.tex.setMagfilter(Texture.FTLinear)
 
-
-        t = 0
-        self.x0 = np.linspace(-float(self.winsize_x)/self.winsize_y, float(self.winsize_x)/self.winsize_y, num=self.winsize_x)
-        self.y0 = np.linspace(-1, 1, num=self.winsize_y)
-        self.XX, self.YY = np.meshgrid(self.x0, self.y0)
-        self.XX_theta = self.XX * np.cos(self.theta)  # proportion of XX for given rotation
-        self.YY_theta = self.YY * np.sin(self.theta)  # proportion of YY for given rotation
-        self.XY_theta = self.XX_theta + self.YY_theta  # sum the components
-        self.gauss = np.exp(- ((self.XX ** 2) + (self.YY ** 2)) / (2 * self.sigma ** 2))
-        self.gauss = self.gauss * (self.gauss > 0.005)
-        self.grating = signal.square(2 * pi * self.XY_theta * 10 - 2 * np.pi * self.freq * t)
-        self.gaussgrating = self.grating * self.gauss
-        self.img0[:, :, 0] = (self.gaussgrating * 127) + 127
-
-        # self.img0[:, :, 1] = (self.grating * self.gauss * 127) + 127
-        # self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
-        self.img0 = self.img0.astype(np.uint8)
-
-        self.tex0 = Texture("texture")
-        self.tex0.setMagfilter(Texture.FTLinear)
-        self.tex0.setup2dTexture(self.img0.shape[1], self.img0.shape[0], Texture.TUnsignedByte, Texture.FRgb)
-        memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
+        self.tex.setup2dTexture(100, 1, Texture.TUnsignedByte, Texture.FLuminance)
+        memoryview(self.tex.modify_ram_image())[:] = y.astype(np.uint8).tobytes()
 
         cm = CardMaker('card')
+
         self.cardnode = self.render.attachNewNode(cm.generate())
-        self.cardnode.setPos(-0.5, 0.5, -0.5)
 
         self.lens1 = PerspectiveLens()
         self.lens1.setNearFar(0.01, 100)
         self.lens1.setFov(90, 90)
         self.cam.node().setLens(self.lens1)
 
-        ts0 = TextureStage("mapping texture stage0")
-        ts0.setSort(0)
+        self.cardnode.setPos(-0.5, 0.5, -0.5)
 
-        self.cardnode.setTexture(ts0, self.tex0)
-        self.setBackgroundColor(0, 0, 0.5, 1)
+        self.cardnode.setTexture(self.tex)
 
-        self.mapping_shader = Shader.make(Shader.SLGLSL, motion_shader[0], motion_shader[1])
-        self.cardnode.setShader(self.mapping_shader)
-        self.cardnode.setShaderInput("rot_angle", 0.0)
+        self.my_shader = Shader.make(Shader.SLGLSL, my_shader[0], my_shader[1])
 
-
-
+        self.cardnode.setShader(self.my_shader)
+        self.cardnode.hide()
+        self.scale = 12
+        self.cardnode.setShaderInput("x_scale", self.scale * self.getAspectRatio())
+        self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio())
+        self.cardnode.setShaderInput("y_scale", self.scale)
+        self.gabor_radius = 0.1
+        self.cardnode.setShaderInput("gauss_sigma", self.gabor_radius)
+        self.theta = 0
+        self.cardnode.setShaderInput("rot_angle", self.theta)
+        # self.cardnode.setShaderInput("rot_angle", 0)
+        # self.cardnode.setShaderInput("x_shift", 0)
+        self.x = 0
+        self.y = 0
+        self.setBackgroundColor(0.5, 0.5, 0.5)
+        self.drawGreyFlag = 1
         self.taskMgr.add(self.MouseWatcher, "MouseWatcher")
-        self.taskMgr.add(self.contrastReversal, "contrastReversal")
+        # self.taskMgr.add(self.contrastReversal, "contrastReversal")
 
 
     # change the centre of the Gabor by tracking mouse position
@@ -121,15 +114,8 @@ class MyApp(ShowBase):
         if self.mouseWatcherNode.hasMouse():
             self.x = self.mouseWatcherNode.getMouseX()
             self.y = self.mouseWatcherNode.getMouseY()
-            self.cardnode.setPos(-0.5+self.x*0.5, 0.5, -0.5+self.y*0.5)
-
-            # self.gauss = np.exp(-((self.XX-self.x)**2 + (self.YY-self.y)**2) / (2 * self.sigma**2))
-            # self.gauss = self.gauss * (self.gauss > 0.005)
-            # self.img0[:, :, 0] = (self.grating * self.gauss * 127) + 127
-            # self.img0[:, :, 1] = (self.grating * self.gauss * 127) + 127
-            # self.img0[:, :, 2] = (self.grating * self.gauss * 127) + 127
-            # self.img0 = self.img0.astype(np.uint8)
-            # memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
+            self.cardnode.setShaderInput("x_pos", 0.5+self.x*0.5)
+            self.cardnode.setShaderInput("y_pos", 0.5+self.y*0.5)
         return task.cont
     # change contrast of gratings
     def contrastReversal(self, task):
@@ -140,33 +126,32 @@ class MyApp(ShowBase):
     #print mouse position in the window upon left mouse click
     def mouseLeftClick(self):
         if self.drawGreyFlag:
-            memoryview(self.tex0.modify_ram_image())[:] = self.img0.tobytes()
+            self.cardnode.show()
             self.drawGreyFlag = 0
         else:
-            memoryview(self.tex0.modify_ram_image())[:] = self.img1.tobytes()
+            self.cardnode.hide()
             self.drawGreyFlag = 1
     def mouseRightClick(self):
-        print (self.x, self.y)
+        print (0.5+self.x*0.5, 0.5+self.y*0.5)
     def escapeAction(self):
         self.destroy()
         self.taskMgr.stop()
     def ThetaIncrease(self):
 
-        self.theta += np.deg2rad(5.0)
+        self.theta += np.deg2rad(10.0)
         self.cardnode.setShaderInput("rot_angle", self.theta)
-        # self.XX_theta = self.XX * np.cos(self.theta)  # proportion of XX for given rotation
-        # self.YY_theta = self.YY * np.sin(self.theta)  # proportion of YY for given rotation
-        # self.XY_theta = self.XX_theta + self.YY_theta  # sum the components
-        # self.grating = signal.square(2 * pi * self.XY_theta * 10)
-        # self.gaussgrating = self.grating * self.gauss
+
     def ThetaDecrease(self):
-        self.theta -= np.deg2rad(5)
+        self.theta -= np.deg2rad(10)
         self.cardnode.setShaderInput("rot_angle", self.theta)
-        # self.XX_theta = self.XX * np.cos(self.theta)  # proportion of XX for given rotation
-        # self.YY_theta = self.YY * np.sin(self.theta)  # proportion of YY for given rotation
-        # self.XY_theta = self.XX_theta + self.YY_theta  # sum the components
-        # self.grating = signal.square(2 * pi * self.XY_theta * 10)
-        # self.gaussgrating = self.grating * self.gauss
+    def GaborIncrease(self):
+        if self.gabor_radius<0.6:
+            self.gabor_radius += 0.05
+            self.cardnode.setShaderInput("gauss_sigma",self.gabor_radius)
+    def GaborDecrease(self):
+        if self.gabor_radius>0.1:
+            self.gabor_radius -= 0.05
+            self.cardnode.setShaderInput("gauss_sigma", self.gabor_radius)
 
 
 if __name__ == "__main__":
