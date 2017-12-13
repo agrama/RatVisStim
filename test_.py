@@ -30,20 +30,29 @@ my_shader = [
                uniform float x_shift;
                uniform float x_scale;
                uniform float y_scale;
-               uniform float timer;
-               //uniform float gabor_radius;
+               
+               uniform float gauss_sigma;
+               uniform float x_pos;
+               uniform float y_pos;
+               uniform float aspect_ratio;
 
                void main() {
                mat2 rotation = mat2( cos(rot_angle), sin(rot_angle),
-                     -sin(rot_angle), cos(rot_angle));
+                                    -sin(rot_angle), cos(rot_angle));
 
 
                  //vec2 texcoord_translated = vec2(texcoord.x - x_shift, texcoord.y);
                  vec2 texcoord_scaled = vec2(texcoord.x * x_scale, texcoord.y * y_scale);
                  vec2 texcoord_rotated = rotation*texcoord_scaled.xy;
 
-                 vec4 color0 = texture(p3d_Texture0, texcoord_rotated);
-                 color0 = (color0-0.5) * sin(2 * 3.14 * timer ) + 0.5;
+                 //vec4 color0 = texture(p3d_Texture0, texcoord);
+                 float cycles = 16;
+                 vec4 color0 = vec4((sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2,1);
+                 if (pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) > 0.1786 ){
+                        color0 = vec4(0.5,0.5,0.5,1);
+                        }
+                 
+                 //color0 = (color0-0.5) * exp(-1* ( pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) )/(2*pow(gauss_sigma,2)) ) + 0.5;
                  //float r;
                  //r = sqrt((texcoord.x-0.5)*(texcoord.x-0.5) + (texcoord.y-0.5)*(texcoord.y-0.5));
 
@@ -57,7 +66,7 @@ my_shader = [
 
 loadPrcFileData("",
                """sync-video #t
-               fullscreen #t
+               fullscreen #f
                win-origin 0 0
                undecorated #t
                cursor-hidden #t
@@ -69,14 +78,14 @@ class MyApp(ShowBase):
    def __init__(self):
        ShowBase.__init__(self)
        self.accept('escape', sys.exit)
-       x = np.linspace(0, 2*np.pi, 1000)
-       y = (np.sign(np.sin(x)) + 1)/2 * 255
+       x = np.linspace(0, 1, 1000)
+       # y = (np.sign(np.sin(x)) + 1)/2 * 255
 
        self.tex = Texture("texture")
        self.tex.setMagfilter(Texture.FTLinear)
 
        self.tex.setup2dTexture(1000, 1, Texture.TUnsignedByte, Texture.FLuminance)
-       memoryview(self.tex.modify_ram_image())[:] = y.astype(np.uint8).tobytes()
+       memoryview(self.tex.modify_ram_image())[:] = x.astype(np.uint8).tobytes()
 
 
        cm = CardMaker('card')
@@ -101,17 +110,18 @@ class MyApp(ShowBase):
 
    def TextureChanger(self, task):
 
-       rot = task.time//3
-       scale = 12
+       scale = 1
 
-       gabor_radius = 1
+       gabor_radius = 0.08
 
        self.cardnode.setShaderInput("x_scale", scale*self.getAspectRatio())
        self.cardnode.setShaderInput("y_scale", scale)
-       self.cardnode.setShaderInput("rot_angle", np.pi)
-       self.cardnode.setShaderInput("x_shift", task.time)
-       self.cardnode.setShaderInput("gabor_radius", gabor_radius)
-       self.cardnode.setShaderInput("timer", 0.2)
+       self.cardnode.setShaderInput("rot_angle", np.deg2rad(180))
+       self.cardnode.setShaderInput("x_shift", 2*np.pi*task.time*4)
+       self.cardnode.setShaderInput("gauss_sigma", gabor_radius)
+       self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio())
+       self.cardnode.setShaderInput("x_pos",0.5)
+       self.cardnode.setShaderInput("y_pos",0.5)
        return task.cont
 
 app = MyApp()

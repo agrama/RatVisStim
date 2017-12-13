@@ -55,7 +55,7 @@ loadPrcFileData("",
                 cursor-hidden #t
                 win-size %d %d
                 show-frame-rate-meter #t
-                """ % (3000, 2000))
+                """ % (1920, 1080))
 
 
 class MyApp(ShowBase):
@@ -104,7 +104,7 @@ class MyApp(ShowBase):
         self.cardnode.setShaderInput("x_scale", self.scale * self.getAspectRatio())
         self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio())
         self.cardnode.setShaderInput("y_scale", self.scale)
-        self.cardnode.setShaderInput("gauss_sigma", 0.1)
+        self.cardnode.setShaderInput("gauss_sigma", 0.08)
         # self.cardnode.setShaderInput("rot_angle", 0)
         # self.cardnode.setShaderInput("x_shift", 0)
 

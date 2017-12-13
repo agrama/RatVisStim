@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../.idea/PycharmProjects.iml" filepath="$PROJECT_DIR$/../.idea/PycharmProjects.iml" />
+      <module fileurl="file://C:\Users\Cox-Resscope\PycharmProjects\.idea\PycharmProjects.iml" filepath="C:\Users\Cox-Resscope\PycharmProjects\.idea\PycharmProjects.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/RatVisStim.iml" filepath="$PROJECT_DIR$/.idea/RatVisStim.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../drago_setup/.idea/drago_setup.iml" filepath="$PROJECT_DIR$/../drago_setup/.idea/drago_setup.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../multiprocessing_test/.idea/multiprocessing_test.iml" filepath="$PROJECT_DIR$/../multiprocessing_test/.idea/multiprocessing_test.iml" />
     </modules>
   </component>
 </project>
