@@ -35,6 +35,7 @@ my_shader = [
         uniform float x_pos;
         uniform float y_pos;
         uniform float aspect_ratio;
+        uniform float cycles;
 
         void main() {
         mat2 rotation = mat2( cos(rot_angle), sin(rot_angle),
@@ -44,7 +45,7 @@ my_shader = [
           vec2 texcoord_scaled = vec2(texcoord.x * x_scale, texcoord.y * y_scale);
           vec2 texcoord_rotated = rotation*texcoord_scaled.xy;
 
-          vec4 color0 = vec4((sign(sin(texcoord_rotated.x*2*3.14*10 - phi))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*10 - phi))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*10 - phi))+1)/2,1);
+          vec4 color0 = vec4((sign(sin(texcoord_rotated.x*2*3.14*cycles - phi))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - phi))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - phi))+1)/2,1);
           //color0 = (color0-0.5) * exp(-1* ( pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) )/(2*pow(gauss_sigma,2)) ) + 0.5;
           if (pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) > gabor_radius ){
                         color0 = vec4(0.5,0.5,0.5,1);
@@ -61,7 +62,7 @@ loadPrcFileData("",
                 undecorated #t
                 cursor-hidden #t
                 win-size %d %d
-                show-frame-rate-meter #t
+                show-frame-rate-meter #f
                 """ % (1920, 1080))
 
 
@@ -96,19 +97,18 @@ class MyApp(ShowBase):
         self.setBackgroundColor(0.5, 0.5, 0.5)
         self.cardnode.setShader(self.my_shader)
         self.cardnode.hide()
-        self.gabor_radius = 0.1786 # this would correspond to 40 deg diameter patch if the benq monitor was 20 cm from animal
-        self.scale = 16 # this would be a 0.1 cpd grating if the benq monitor was 20 cm from animal
+        self.gabor_radius = 0.04 # this would correspond to 40 deg diameter patch if the benq monitor was 20 cm from animal
+        self.scale = 1
+        self.cardnode.setShaderInput("cycles", 9) # this would be a 0.1 cpd grating if the benq monitor was 20 cm from animal
         self.cardnode.setShaderInput("x_scale", self.scale * self.getAspectRatio()) # accounts for aspect ratio of screen
         self.cardnode.setShaderInput("y_scale", self.scale)
         self.cardnode.setShaderInput("rot_angle", 0)
         self.cardnode.setShaderInput("phi", 0) # phase of the stim
-        self.cardnode.setShaderInput("gauss_sigma", self.gabor_radius)
+        self.cardnode.setShaderInput("gabor_radius", self.gabor_radius)
         self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio()) # accounts for aspect ratio of screen
         self.cardnode.setShaderInput("x_pos", 0.5)  # present gabor in the centre of the screen
         self.cardnode.setShaderInput("y_pos", 0.5)
     def escapeAction(self):
         self.shared.main_programm_still_running.value = 0
 
-app = MyApp()
-app.run()
 

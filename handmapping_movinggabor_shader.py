@@ -46,14 +46,14 @@ my_shader = [
             ]
 
 loadPrcFileData("",
-                """sync-video #t
-                fullscreen #t
-                win-origin 0 0
+                """sync-video #f
+                fullscreen #f
+                win-origin 1920 0
                 undecorated #t
                 cursor-hidden #f
                 win-size %d %d
                 show-frame-rate-meter #t
-                """ % (1920, 1080))
+                """ % (1920, 1920))
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
@@ -62,8 +62,8 @@ class MyApp(ShowBase):
         self.accept('escape', self.escapeAction)
         self.accept('arrow_right', self.ThetaIncrease)
         self.accept('arrow_left', self.ThetaDecrease)
-        self.accept('wheel_up', self.GaborIncrease)
-        self.accept('wheel_down', self.GaborDecrease)
+        # self.accept('wheel_up', self.GaborIncrease)
+        # self.accept('wheel_down', self.GaborDecrease)
         self.disableMouse()
         x = np.linspace(0, 2 * np.pi, 100)
         y = (np.sign(np.sin(x)) + 1) / 2 * 255
@@ -91,11 +91,11 @@ class MyApp(ShowBase):
 
         self.cardnode.setShader(self.my_shader)
         self.cardnode.hide()
-        self.scale = 12
+        self.scale = 16 #on the benq monitor at 20 cm from animal, this corresponds to 0.1 cpd
         self.cardnode.setShaderInput("x_scale", self.scale * self.getAspectRatio())
         self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio())
         self.cardnode.setShaderInput("y_scale", self.scale)
-        self.gabor_radius = 0.1
+        self.gabor_radius = 0.0588
         self.cardnode.setShaderInput("gauss_sigma", self.gabor_radius)
         self.theta = 0
         self.cardnode.setShaderInput("rot_angle", self.theta)

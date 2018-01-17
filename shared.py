@@ -4,8 +4,9 @@ from FrameCounter import FrameCounter
 import ctypes
 # from stimulus_module_shader import StimulusModule
 # from stimulus_module_movingbar import StimulusModule
-from stimulus_module_orient_position_gratings import StimulusModule
+# from stimulus_module_orient_position_gratings import StimulusModule
 # from stimulus_module_cesar import StimulusModule
+from stimulus_module_moving_grating_circularpatch import StimulusModule
 class Shared():
     def __init__(self):
 

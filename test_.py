@@ -46,9 +46,9 @@ my_shader = [
                  vec2 texcoord_rotated = rotation*texcoord_scaled.xy;
 
                  //vec4 color0 = texture(p3d_Texture0, texcoord);
-                 float cycles = 16;
+                 float cycles = 9;
                  vec4 color0 = vec4((sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2,1);
-                 if (pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) > 0.1786 ){
+                 if (pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) > 0.04 ){
                         color0 = vec4(0.5,0.5,0.5,1);
                         }
                  
@@ -67,7 +67,7 @@ my_shader = [
 loadPrcFileData("",
                """sync-video #t
                fullscreen #f
-               win-origin 0 0
+               win-origin 1920 0
                undecorated #t
                cursor-hidden #t
                win-size %d %d
@@ -112,12 +112,12 @@ class MyApp(ShowBase):
 
        scale = 1
 
-       gabor_radius = 0.08
+       gabor_radius = 0.1786
 
        self.cardnode.setShaderInput("x_scale", scale*self.getAspectRatio())
        self.cardnode.setShaderInput("y_scale", scale)
        self.cardnode.setShaderInput("rot_angle", np.deg2rad(180))
-       self.cardnode.setShaderInput("x_shift", 2*np.pi*task.time*4)
+       self.cardnode.setShaderInput("x_shift", 0)
        self.cardnode.setShaderInput("gauss_sigma", gabor_radius)
        self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio())
        self.cardnode.setShaderInput("x_pos",0.5)
