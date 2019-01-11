@@ -30,8 +30,9 @@ my_shader = [
                 uniform float y_shift;
 
                 void main() {
-
+                
                  vec2 texcoord_translated = vec2(texcoord.x-x_shift , texcoord.y-y_shift);
+                 vec2 tex
                  vec4 color0 = texture(p3d_Texture0, texcoord_translated);
                  gl_FragColor = color0;
                }

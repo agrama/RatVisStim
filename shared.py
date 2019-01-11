@@ -6,7 +6,13 @@ import ctypes
 # from stimulus_module_movingbar import StimulusModule
 # from stimulus_module_orient_position_gratings import StimulusModule
 # from stimulus_module_cesar import StimulusModule
-from stimulus_module_moving_grating_circularpatch import StimulusModule
+# from stimulus_module_moving_grating_circularpatch import StimulusModule
+# from stimulus_module_aperture import StimulusModule
+# from stimulus_module_ON_OFF_square_RFmapping import StimulusModule
+from stimulus_module_moving_square_RFmapping import StimulusModule
+# from stimulus_module_moving_square_RFmapping_4x4 import StimulusModule
+# from stimulus_module_aperture_grating import StimulusModule
+# from stimulus_module_aperture_scene import StimulusModule
 class Shared():
     def __init__(self):
 

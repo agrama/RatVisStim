@@ -48,7 +48,7 @@ my_shader = [
                  //vec4 color0 = texture(p3d_Texture0, texcoord);
                  float cycles = 9;
                  vec4 color0 = vec4((sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2, (sign(sin(texcoord_rotated.x*2*3.14*cycles - x_shift))+1)/2,1);
-                 if (pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) > 0.04 ){
+                 if (pow((texcoord.x-x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) > gauss_sigma ){
                         color0 = vec4(0.5,0.5,0.5,1);
                         }
                  
@@ -106,13 +106,17 @@ class MyApp(ShowBase):
        self.my_shader = Shader.make(Shader.SLGLSL, my_shader[0], my_shader[1])
 
        self.cardnode.setShader(self.my_shader)
+       print(self.getAspectRatio())
 
 
    def TextureChanger(self, task):
 
        scale = 1
 
-       gabor_radius = 0.1786
+       gabor_radius = 0.003
+       #0.04 corresponds to a disc of diameter 40 deg
+       # 0.12 corresponds to a disc of diameter 20 deg when monitor is 20 cm away from animal
+       # 0.003 corresponds to a disc of diameter 10 deg when monitor is 20 cm away from animal
 
        self.cardnode.setShaderInput("x_scale", scale*self.getAspectRatio())
        self.cardnode.setShaderInput("y_scale", scale)
@@ -120,8 +124,8 @@ class MyApp(ShowBase):
        self.cardnode.setShaderInput("x_shift", 0)
        self.cardnode.setShaderInput("gauss_sigma", gabor_radius)
        self.cardnode.setShaderInput("aspect_ratio", self.getAspectRatio())
-       self.cardnode.setShaderInput("x_pos",0.5)
-       self.cardnode.setShaderInput("y_pos",0.5)
+       self.cardnode.setShaderInput("x_pos",0.5 + 0.0315 -2*0.063)
+       self.cardnode.setShaderInput("y_pos",0.5+ 0.055 -2*0.11)
        return task.cont
 
 app = MyApp()

@@ -17,9 +17,9 @@ class StimulusModule(Process):
         self.thetas = np.arange(0, 2*np.pi, np.pi/4)           # number of directions = 8
 
         #######JULEEEE
-        num_repetitions = 5
-        self.frametrig = 300
-        self.waitframes = 300  # wait # frames before starting stim
+        num_repetitions = 1
+        self.frametrig = 600#30*(20+2)
+        self.waitframes = 600#30*(20+2) # wait # frames before starting stim
         self.temporal_frequency = 4 #of grating in Hz; the value of 4 was chosen by looking at girman et al
         #######
 

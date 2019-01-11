@@ -29,8 +29,8 @@ class StimulusModule(Process):
         #######JULEEEE
 
         numtrials = 5
-        self.waitframes = 300  # wait frames before starting stim
-        self.frametrig = 300  # trigger visual stim at these frame intervals after waitframes
+        self.waitframes = 10*(30+2)  # wait frames before starting stim
+        self.frametrig = 10*(30+2)  # trigger visual stim at these frame intervals after waitframes
 
         #########
 
@@ -43,10 +43,11 @@ class StimulusModule(Process):
             if self.shared.frameCount.value < self.waitframes:
                 self.myapp.taskMgr.step()
             else:
-                if not (self.shared.frameCount.value+1 - self.waitframes) % self.frametrig:    # present every frametrig frame
+                if not (self.shared.frameCount.value - self.waitframes) % self.frametrig:    # present every frametrig frame
                     # need to pass values of position and rotation angle to the shader
                     stimcode_dummy = self.stimcode[self.numstim - self.stimcount]
-                    self.myapp.cardnode.setTexture(stimcode_dummy[0])
+                    print(stimcode_dummy)
+                    self.myapp.cardnode.setTexture(self.myapp.tex[stimcode_dummy[0]])
                     self.myapp.cardnode.setShaderInput("aperture_toggle", stimcode_dummy[1])
                     self.stim_start_time = time.time()
                     self.last_time = time.time()

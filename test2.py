@@ -40,7 +40,7 @@ my_shader = [
                       -sin(rot_angle), cos(rot_angle));
          vec2 texcoord_scaled = vec2(texcoord.x * x_scale, texcoord.y * y_scale);
          vec2 texcoord_rotated = rotation*texcoord_scaled.xy;
-         vec2 texcoord_spherical = 
+         //vec2 texcoord_spherical = 
          vec4 color0 = texture(p3d_Texture0, texcoord_rotated);
          color0 = (color0-0.5) * exp(-1* ( pow((texcoord.x - x_pos)*aspect_ratio,2) + pow((texcoord.y - y_pos),2) )/(2*pow(gauss_sigma,2)) ) + 0.5;
          gl_FragColor = color0;
@@ -126,7 +126,7 @@ class MyApp(ShowBase):
                 print(task.frame)
                 self.stimcount -= 1
                 return task.cont
-            elif (task.frame-130) % 60 == 0:
+            elif (task.frame-140) % 60 == 0:
                 self.cardnode.hide()
                 return task.cont
             return task.cont

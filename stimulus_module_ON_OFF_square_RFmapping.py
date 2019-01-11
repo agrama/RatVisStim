@@ -1,5 +1,5 @@
 from multiprocessing import Process, Value, Array, Queue, sharedctypes
-from gabor_mapping_shader import MyApp
+from ON_OFF_square_mapping_shader import MyApp
 import time
 import numpy as np
 import random as rn
@@ -18,37 +18,63 @@ class StimulusModule(Process):
         # self.myapp.drawgrey()
         # self.myapp.taskMgr.step()
 
+        stimcode = []
+        for x in np.arange(0.0625, 1, 0.125):
+            for y in np.arange(0.0625, 1, 0.125):
+                for polarity in np.arange(0, 2):
+                    stimcode.append((x, y, 255 * polarity))
+
+        # for numtrials = 2 use seed 5
+        # for numtrials = 5 use seed 2
+        # for numtrials = 10 use seed 2
+        numtrials = 10
+        rn.seed(2)
+        self.waitframes = 600  # wait frames before starting stim
+        self.frametrig = 60  # trigger visual stim at these frame intervals after waitframes
+
+        stimcode_ = []
+        rn.seed(2)
+        # self.stimcode = []
+        stim_ind = rn.randint(0, len(stimcode))
+        stimcode_.append(stimcode[stim_ind])
+        stimcode.pop(stim_ind)
+        while len(stimcode) > 1:
+            stim_ind = rn.randint(0, len(stimcode) - 1)
+            old_point = stimcode_[-1]
+            new_point = stimcode[stim_ind]
+            dist = ((new_point[0] - old_point[0]) ** 2 + (new_point[1] - old_point[1]) ** 2) ** 0.5
+            while dist < 0.35:
+                stim_ind = rn.randint(0, len(stimcode) - 1)
+                new_point = stimcode[stim_ind]
+                dist = ((new_point[0] - old_point[0]) ** 2 + (new_point[1] - old_point[1]) ** 2) ** 0.5
+            stimcode_.append(stimcode[stim_ind])
+            # print(len(stimcode_))
+            stimcode.pop(stim_ind)
+        stimcode_.append(stimcode[-1])
         self.stimcode = []
-        # for an x shift of the centre of the disk by 10 deg, need to chance x_pos by 0.063
-        # for an y shift of the centre of the disk by 10 deg, need to chance x_pos by 0.11
-        # this was found empirically, and the ratio of this shift comes to 1.77 which is the aspect ratio of the monitor
-        for x in np.arange(0.5+ 0.03150-(0.063*2),  0.5+0.0315+ 0.063 + 0.01, 0.063):
-            for y in np.arange(0.5+0.055 - (0.11*2),  0.5+0.055 + 0.11 + 0.01, 0.11):
-                for theta in np.arange(0, np.pi/2 + 0.1, np.pi/2):   # present two orientations
-                    self.stimcode.append((x, y, theta))     #this generates different permutations of x and y and theta values
-        rn.seed(1)
-        rn.shuffle(self.stimcode)
-        stimcode1 = self.stimcode[:]
-        numtrials = 5
-        for trial in range(numtrials-1):
-            self.stimcode.extend(stimcode1)   #repeat the randomized stim block
+        for indx in range(numtrials):
+            self.stimcode.extend(stimcode_)
         self.numstim = len(self.stimcode)
         self.stimcount = len(self.stimcode)
-        self.waitframes = 120  # wait frames before starting stim
-        self.frametrig = 60  # trigger visual stim at these frame intervals after waitframes
+
         while self.shared.main_programm_still_running.value == 1:
+
             if self.shared.frameCount.value < self.waitframes:
+
                 self.myapp.taskMgr.step()
+                time.sleep(0.001)
             else:
                 if (self.shared.frameCount.value-self.waitframes) % self.frametrig < 5:    # present every frametrig frame
                     # need to pass values of position and rotation angle to the shader
+
                     stimcode_dummy = self.stimcode[self.numstim - self.stimcount]
-                    self.myapp.cardnode.setShaderInput("rot_angle", stimcode_dummy[2])
+                    print(self.shared.frameCount.value, stimcode_dummy[0], stimcode_dummy[1])
+                    self.myapp.cardnode.setShaderInput("polarity", stimcode_dummy[2])
                     self.myapp.cardnode.setShaderInput("x_pos", stimcode_dummy[0])
                     self.myapp.cardnode.setShaderInput("y_pos", stimcode_dummy[1])
                     self.stim_start_time = time.time()
                     self.last_time = time.time()
-                    while self.last_time- self.stim_start_time < 0.5:   #present gabor for 500 msec
+                    while self.last_time- self.stim_start_time < 0.2:   #present gabor for 200 msec
                         self.myapp.cardnode.show()
                         self.myapp.taskMgr.step()
                         self.last_time = time.time()
